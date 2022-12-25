@@ -21,6 +21,7 @@ namespace ProcessScheduling.Core.Schedulers
     internal abstract class Scheduler : IScheduler
     {
         protected readonly List<Process> processes;
+        protected List<Process> NotFinished => this.processes.Where(process => !process.IsFinished).ToList();
         protected readonly bool preemptive;
         protected int currentTime;
 
@@ -66,7 +67,7 @@ namespace ProcessScheduling.Core.Schedulers
 
             }
 
-            return processes;
+            return this.processes;
         }
     }
 

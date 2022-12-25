@@ -92,5 +92,48 @@ namespace NUnitTest
                 }
             });
         }
+
+        [Test]
+        public void ShortestRemainingTimeFirst()
+        {
+            // Arrange
+            var processes = new List<Process>()
+            {
+                new Process(1, 8, 2),
+                new Process(2, 5, 1),
+                new Process(3, 2, 7),
+                new Process(4, 4, 3),
+                new Process(5, 2, 8),
+                new Process(6, 4, 2),
+                new Process(7, 3, 5),
+            };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 12 },
+                { 2, 7 },
+                { 3, 22 },
+                { 4, 10 },
+                { 5, 30 },
+                { 6, 6 },
+                { 7, 16 },
+            };
+            var scheduler = new ShortestRemainingTimeFirstScheduler(processes);
+
+            // Act
+            scheduler.Process();
+
+            // Assert
+            foreach (var process in processes.OrderBy(process => process.Id))
+            {
+                Console.WriteLine(process);
+            }
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
+        }
     }
 }
