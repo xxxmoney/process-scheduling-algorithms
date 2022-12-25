@@ -9,13 +9,13 @@ namespace ProcessScheduling.Core.Schedulers
 {
     internal class FirstComeFirstServeScheduler : Scheduler
     {
-        public FirstComeFirstServeScheduler(List<Process> processes) : base(processes)
+        public FirstComeFirstServeScheduler(List<Process> processes) : base(processes, false)
         {
         }
 
         protected override Process GetNext()
         {
-            return this.processes.Find(process => !process.IsFinished && process.ArrivalTime <= currentTime);
+            return this.processes.Find(process => !process.IsFinished && process.ArrivalTime <= this.currentTime);
         }
     }
 }

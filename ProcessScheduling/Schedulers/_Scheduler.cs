@@ -20,42 +20,50 @@ namespace ProcessScheduling.Core.Schedulers
 
     internal abstract class Scheduler : IScheduler
     {
-        protected List<Process> processes;
+        protected readonly List<Process> processes;
+        protected readonly bool preemptive;
         protected int currentTime;
 
-        protected Scheduler(List<Process> processes)
+        protected Scheduler(List<Process> processes, bool preemptive)
         {
             this.processes = processes;
+            this.preemptive = preemptive;
         }
 
         protected virtual void SortBefore()
         {
-            processes.Sort((p1, p2) => p1.ArrivalTime.CompareTo(p2.ArrivalTime));
+            this.processes.Sort((p1, p2) => p1.ArrivalTime.CompareTo(p2.ArrivalTime));
         }
 
         protected abstract Process GetNext();
 
         public List<Process> Process()
         {
-            // Sort the processes.
+            // Sorts the processes.
             this.SortBefore();
 
-            // Iterates the current time until all processes have completed.
+            // Iterates until all processes have completed.
             while (!processes.All(process => process.IsFinished))
             {
                 // Find the next process to run
                 var nextProcess = GetNext();
 
-                // If no process is ready to run, increments the current time
+                // If no process is ready to run, increments the current time.
                 if (nextProcess == null)
                 {
-                    currentTime++;
+                    this.currentTime++;
                     continue;
                 }
 
-                // Runs the next process and update the current time.
-                currentTime++;
-                nextProcess.Run(currentTime);
+                // Non-preemptive - runs until process is finished.
+                // Preemptive - runs only once.
+                int length = this.preemptive ? 1 : nextProcess.BurstTime;
+                for (int i = 0; i < length; i++)
+                {
+                    this.currentTime++;
+                    nextProcess.Run(this.currentTime);
+                }
+
             }
 
             return processes;
