@@ -9,8 +9,13 @@ namespace ProcessScheduling.Core.Schedulers
 {
     internal class ShortestRemainingTimeFirstScheduler : Scheduler
     {
-        public ShortestRemainingTimeFirstScheduler(List<Process> processes) : base(processes, true)
+        public ShortestRemainingTimeFirstScheduler(List<Process> processes) : base(processes)
         {
+        }
+
+        protected override int GetExecutionLength(Process nextProcess)
+        {
+            return 1;
         }
 
         protected override Process GetNext()

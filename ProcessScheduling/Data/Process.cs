@@ -77,7 +77,7 @@
 
         public override string ToString()
         {
-            return $"Name: {Id} Arrival Time: {ArrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
+            return $"Id: {Id} Arrival Time: {ArrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
         }
     }
 }

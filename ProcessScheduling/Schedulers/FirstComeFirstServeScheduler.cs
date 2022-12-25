@@ -9,7 +9,7 @@ namespace ProcessScheduling.Core.Schedulers
 {
     internal class FirstComeFirstServeScheduler : Scheduler
     {
-        public FirstComeFirstServeScheduler(List<Process> processes) : base(processes, false)
+        public FirstComeFirstServeScheduler(List<Process> processes) : base(processes)
         {
         }
 

@@ -5,10 +5,14 @@ namespace NUnitTest
 {
     public class Tests
     {
-        
+        private void PrintScheduler(IScheduler scheduler)
+        {
+            
+            Console.WriteLine();
+        }
 
         [Test]
-        public void FirstComeFirstServer()
+        public void FirstComeFirstServe()
         {
             // Arrange
             var processes = new List<Process>()
@@ -37,10 +41,7 @@ namespace NUnitTest
             scheduler.Process();
 
             // Assert
-            foreach (var process in processes.OrderBy(process => process.Id))
-            {
-                Console.WriteLine(process);
-            }
+            Console.WriteLine(scheduler);
             Assert.Multiple(() =>
             {
                 foreach (var process in processes)
@@ -80,10 +81,7 @@ namespace NUnitTest
             scheduler.Process();
 
             // Assert
-            foreach (var process in processes.OrderBy(process => process.Id))
-            {
-                Console.WriteLine(process);
-            }
+            Console.WriteLine(scheduler);
             Assert.Multiple(() =>
             {
                 foreach (var process in processes)
@@ -123,10 +121,48 @@ namespace NUnitTest
             scheduler.Process();
 
             // Assert
-            foreach (var process in processes.OrderBy(process => process.Id))
+            Console.WriteLine(scheduler);
+            Assert.Multiple(() =>
             {
-                Console.WriteLine(process);
-            }
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
+        }
+
+        [Test]
+        public void RoundRobin()
+        {
+            // Arrange
+            int timeSlice = 2;
+            var processes = new List<Process>()
+            {
+                new Process(1, 8, 2),
+                new Process(2, 5, 1),
+                new Process(3, 2, 7),
+                new Process(4, 4, 3),
+                new Process(5, 2, 8),
+                new Process(6, 4, 2),
+                new Process(7, 3, 5),
+            };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 19 },
+                { 2, 15 },
+                { 3, 28 },
+                { 4, 22 },
+                { 5, 30 },
+                { 6, 12 },
+                { 7, 27 },
+            };
+            var scheduler = new RoundRobinScheduler(processes, timeSlice);
+
+            // Act
+            scheduler.Process();
+
+            // Assert
+            Console.WriteLine(scheduler);
             Assert.Multiple(() =>
             {
                 foreach (var process in processes)
