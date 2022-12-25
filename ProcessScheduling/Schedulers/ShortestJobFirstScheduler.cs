@@ -9,7 +9,7 @@ namespace ProcessScheduling.Core.Schedulers
 {
     internal class ShortestJobFirstScheduler : Scheduler
     {
-        public ShortestJobFirstScheduler(List<Process> processes) : base(processes, false)
+        public ShortestJobFirstScheduler(List<Process> processes) : base(processes)
         {
         }
 

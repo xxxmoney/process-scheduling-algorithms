@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using ProcessScheduling.Core.Data;
@@ -16,19 +17,31 @@ namespace ProcessScheduling.Core.Schedulers
         /// <param name="processes"></param>
         /// <returns></returns>
         List<Process> Process();
+
+        History GetHistory();
     }
 
     internal abstract class Scheduler : IScheduler
     {
+        private History history;
         protected readonly List<Process> processes;
         protected List<Process> NotFinished => this.processes.Where(process => !process.IsFinished).ToList();
-        protected readonly bool preemptive;
         protected int currentTime;
 
-        protected Scheduler(List<Process> processes, bool preemptive)
+        protected Scheduler(List<Process> processes)
         {
             this.processes = processes;
-            this.preemptive = preemptive;
+            this.history = new History();
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("Processes: ");
+            builder.AppendLine(string.Join('\n', this.processes.OrderBy(process => process.Id)));
+            builder.AppendLine("History: ");
+            builder.AppendLine(this.history.ToString());
+            return builder.ToString();
         }
 
         protected virtual void SortBefore()
@@ -37,6 +50,31 @@ namespace ProcessScheduling.Core.Schedulers
         }
 
         protected abstract Process GetNext();
+
+        protected virtual int GetExecutionLength(Process nextProcess)
+        {
+            return nextProcess.RemainingTime;
+        }
+
+        protected virtual void BeforeProcessOnce(Process nextProcess)
+        {
+        }
+
+        protected virtual void ProcessOnce(Process nextProcess)
+        {
+            int length = GetExecutionLength(nextProcess);
+            for (int i = 0; i < length; i++)
+            {
+                this.currentTime++;
+                nextProcess.Run(this.currentTime);
+                this.history.Add(currentTime, nextProcess);
+            }
+        }
+
+        protected virtual void AfterProcessOnce(Process nextProcess)
+        {
+        }
+
 
         public List<Process> Process()
         {
@@ -56,18 +94,17 @@ namespace ProcessScheduling.Core.Schedulers
                     continue;
                 }
 
-                // Non-preemptive - runs until process is finished.
-                // Preemptive - runs only once.
-                int length = this.preemptive ? 1 : nextProcess.BurstTime;
-                for (int i = 0; i < length; i++)
-                {
-                    this.currentTime++;
-                    nextProcess.Run(this.currentTime);
-                }
-
+                this.BeforeProcessOnce(nextProcess);
+                this.ProcessOnce(nextProcess);
+                this.AfterProcessOnce(nextProcess);
             }
 
             return this.processes;
+        }
+
+        public History GetHistory()
+        {
+            return this.history;
         }
     }
 
