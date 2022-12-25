@@ -21,6 +21,16 @@ namespace NUnitTest
                 new Process(6, 4, 2),
                 new Process(7, 3, 5),
             };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 30 },
+                { 2, 28 },
+                { 3, 9 },
+                { 4, 25 },
+                { 5, 17 },
+                { 6, 27 },
+                { 7, 22 },
+            };
             var scheduler = new FirstComeFirstServeScheduler(processes);
             
             // Act
@@ -31,7 +41,13 @@ namespace NUnitTest
             {
                 Console.WriteLine(process);
             }
-            Assert.Pass();
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
         }
 
         [Test]
@@ -48,6 +64,16 @@ namespace NUnitTest
                 new Process(6, 4, 2),
                 new Process(7, 3, 5),
             };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 14 },
+                { 2, 10 },
+                { 3, 9 },
+                { 4, 17 },
+                { 5, 30 },
+                { 6, 12 },
+                { 7, 22 },
+            };
             var scheduler = new ShortestJobFirstScheduler(processes);
 
             // Act
@@ -58,7 +84,13 @@ namespace NUnitTest
             {
                 Console.WriteLine(process);
             }
-            Assert.Pass();
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
         }
     }
 }
