@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessScheduling.Core", "ProcessScheduling\ProcessScheduling.Core.csproj", "{9F9C215E-79FE-4C4D-87BD-6E2A573A7144}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessScheduling.NUnitTest", "NUnitTest\ProcessScheduling.NUnitTest.csproj", "{79E771BB-9E58-4762-836C-FDF216ED5005}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F9C215E-79FE-4C4D-87BD-6E2A573A7144}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F9C215E-79FE-4C4D-87BD-6E2A573A7144}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F9C215E-79FE-4C4D-87BD-6E2A573A7144}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F9C215E-79FE-4C4D-87BD-6E2A573A7144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79E771BB-9E58-4762-836C-FDF216ED5005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79E771BB-9E58-4762-836C-FDF216ED5005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79E771BB-9E58-4762-836C-FDF216ED5005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79E771BB-9E58-4762-836C-FDF216ED5005}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9A06C875-76FE-4F78-A9C3-38D1209BF607}
+	EndGlobalSection
+EndGlobal
