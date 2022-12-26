@@ -39,7 +39,7 @@ namespace ProcessScheduling.Core.Data
 
         public override string ToString()
         {
-            return $"Time: 1 Process: {this.Process.Id}";
+            return $"Time: {this.Time} Process: {this.Process.Id}";
         }
     }
 }
