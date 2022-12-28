@@ -1,4 +1,6 @@
-﻿namespace ProcessScheduling.Core.Data
+﻿using ProcessScheduling.Core.Enums;
+
+namespace ProcessScheduling.Core.Data
 {
     public class Process
     {
@@ -11,9 +13,11 @@
         public Process(int id, int arrivalTime, int burstTime)
         {
             this.Id = id;
-            this.ArrivalTime = arrivalTime;
+            this.arrivalTime = arrivalTime;
             this.BurstTime = burstTime;
             this.RemainingTime = burstTime;
+
+            this.additionalArrivalTimes = new List<int>();
         }
 
         private Process()
@@ -27,7 +31,7 @@
         /// <summary>
         /// Time of arrival.
         /// </summary>
-        public int ArrivalTime { get; }
+        private readonly int arrivalTime;
         /// <summary>
         /// How much time it takes to complete.
         /// </summary>
@@ -36,6 +40,10 @@
         /// When was the process started.
         /// </summary>
         public int StartTime { get; set; }
+        /// <summary>
+        /// Additional start times in case of interruptions.
+        /// </summary>
+        private readonly List<int> additionalArrivalTimes;
         /// <summary>
         /// How much of time remains for process to be fully processed.
         /// </summary>
@@ -48,6 +56,28 @@
         /// Whether process is finished.
         /// </summary>
         public bool IsFinished { get; private set; }
+        /// <summary>
+        /// Interruption of process.
+        /// </summary>
+        public Interruption Interruption { get; set; }
+
+        /// <summary>
+        /// Adds additional start time.
+        /// </summary>
+        /// <param name="startTime"></param>
+        public void AddAdditionalArrivalTime(int startTime)
+        {
+            this.additionalArrivalTimes.Add(startTime);
+        }
+
+        /// <summary>
+        /// Gets last arrival time.
+        /// </summary>
+        /// <returns></returns>
+        public int GetLastArrivalTime()
+        {
+            return !this.additionalArrivalTimes.Any() ? this.arrivalTime : this.additionalArrivalTimes.Last();
+        }
 
         public void Run(int currentTime)
         {
@@ -77,7 +107,7 @@
 
         public override string ToString()
         {
-            return $"Id: {Id} Arrival Time: {ArrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
+            return $"Id: {Id} Arrival Time: {arrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
         }
     }
 }

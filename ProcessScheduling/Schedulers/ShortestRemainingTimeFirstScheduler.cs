@@ -9,10 +9,10 @@ namespace ProcessScheduling.Core.Schedulers
 {
     internal class ShortestRemainingTimeFirstScheduler : Scheduler
     {
-        public ShortestRemainingTimeFirstScheduler(List<Process> processes) : base(processes)
+        public ShortestRemainingTimeFirstScheduler(List<Process> processes) : base(processes, false)
         {
         }
-
+        
         protected override int GetExecutionLength(Process nextProcess)
         {
             return 1;
@@ -20,12 +20,17 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected override Process GetNext()
         {
+            if (this.lastProcess != null && !this.lastProcess.IsFinished && !this.NotFinishedNotInterrupted.Any(process => process != this.lastProcess && process.GetLastArrivalTime() > this.currentTime))
+            {
+                return this.lastProcess;
+            }
+
             Process nextProcess = null;
             int minRemainingTime = int.MaxValue;
 
-            foreach (var process in this.NotFinished)
+            foreach (var process in this.NotFinishedNotInterrupted)
             {
-                if (process.ArrivalTime > this.currentTime)
+                if (process.GetLastArrivalTime() > this.currentTime)
                 {
                     continue;
                 }
