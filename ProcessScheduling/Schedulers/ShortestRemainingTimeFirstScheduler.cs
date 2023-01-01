@@ -21,7 +21,7 @@ namespace ProcessScheduling.Core.Schedulers
         protected override Process GetNext()
         {
             return this.NotFinishedNotInterrupted
-                .OrderBy(p => p.RemainingTimeReal)
+                .OrderBy(p => p.RemainingTimePartial)
                 .FirstOrDefault(process => process.LastArrivalTime <= this.currentTime);
         }
     }

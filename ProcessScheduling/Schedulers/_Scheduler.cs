@@ -23,7 +23,7 @@ namespace ProcessScheduling.Core.Schedulers
         History GetHistory();
     }
 
-    internal abstract class Scheduler : IScheduler
+    public abstract class Scheduler : IScheduler
     {
         private History history;
         protected readonly List<Process> processes;
@@ -60,7 +60,7 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected virtual int GetExecutionLength(Process nextProcess)
         {
-            return nextProcess.RemainingTimeReal;
+            return nextProcess.RemainingTimePartial;
         }
 
         protected virtual bool ShouldInterrupt(Process nextProcess)

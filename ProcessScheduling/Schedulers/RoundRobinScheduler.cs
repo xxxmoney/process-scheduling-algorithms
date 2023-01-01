@@ -23,7 +23,7 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected override int GetExecutionLength(Process nextProcess)
         {
-            return Math.Min(this.timeSlice, nextProcess.RemainingTimeReal);
+            return Math.Min(this.timeSlice, nextProcess.RemainingTimePartial);
         }
 
         protected override void BeforeProcessOnce(Process nextProcess)
