@@ -245,5 +245,85 @@ namespace NUnitTest
                 }
             });
         }
+
+        [Test]
+        public void PriorityNonPreemptive()
+        {
+            // Arrange
+            var processes = new List<Process>()
+            {
+                new PriorityProcess(1, 8, 2, 5),
+                new PriorityProcess(2, 5, 1, 7),
+                new PriorityProcess(3, 2, 7, 2),
+                new PriorityProcess(4, 4, 3, 1),
+                new PriorityProcess(5, 2, 8, 3),
+                new PriorityProcess(6, 4, 2, 6),
+                new PriorityProcess(7, 3, 5, 4),
+            };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 27 },
+                { 2, 30 },
+                { 3, 9 },
+                { 4, 12 },
+                { 5, 20 },
+                { 6, 29 },
+                { 7, 25 },
+            };
+            var scheduler = new PriorityScheduler(false, processes);
+
+            // Act
+            scheduler.Process();
+
+            // Assert
+            Console.WriteLine(scheduler);
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
+        }
+
+        [Test]
+        public void PriorityPreemptive()
+        {
+            // Arrange
+            var processes = new List<Process>()
+            {
+                new PriorityProcess(1, 8, 2, 5),
+                new PriorityProcess(2, 5, 1, 7),
+                new PriorityProcess(3, 2, 7, 2),
+                new PriorityProcess(4, 4, 3, 1),
+                new PriorityProcess(5, 2, 8, 3),
+                new PriorityProcess(6, 4, 2, 6),
+                new PriorityProcess(7, 3, 5, 4),
+            };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 27 },
+                { 2, 30 },
+                { 3, 12 },
+                { 4, 7 },
+                { 5, 20 },
+                { 6, 29 },
+                { 7, 25 },
+            };
+            var scheduler = new PriorityScheduler(true, processes);
+
+            // Act
+            scheduler.Process();
+
+            // Assert
+            Console.WriteLine(scheduler);
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
+        }
     }
 }

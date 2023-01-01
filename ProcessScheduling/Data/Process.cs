@@ -47,9 +47,10 @@
         /// </summary>
         private int remainingTimeFull;
         /// <summary>
-        /// How much of time remains for process to be partially processed - for example interruption.
+        /// How much of time remains for process to be partially processed.
+        /// Note that if interruption is not defined this value is equal to full remaining time.
         /// </summary>
-        public int RemainingTimeReal
+        public int RemainingTimePartial
         {
             get
             {
@@ -95,7 +96,6 @@
         /// <returns></returns>
         public int LastArrivalTime => !this.additionalArrivalTimes.Any() ? this.arrivalTime : this.additionalArrivalTimes.Last();
         
-
         public void Run(int currentTime)
         {
             if (this.IsFinished)
@@ -127,4 +127,15 @@
             return $"Id: {Id} Arrival Time: {arrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
         }
     }
+
+    public class PriorityProcess : Process
+    {
+        public PriorityProcess(int id, int arrivalTime, int burstTime, int priority) : base(id, arrivalTime, burstTime)
+        {
+            this.Priority = priority;
+        }
+
+        public int Priority { get; }
+    }
+    
 }
