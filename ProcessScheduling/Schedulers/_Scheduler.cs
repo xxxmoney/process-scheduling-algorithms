@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ProcessScheduling.Core.Data;
+using ProcessScheduling.Core.Enums;
 
 namespace ProcessScheduling.Core.Schedulers
 {
@@ -25,12 +27,17 @@ namespace ProcessScheduling.Core.Schedulers
     {
         private History history;
         protected readonly List<Process> processes;
-        protected List<Process> NotFinished => this.processes.Where(process => !process.IsFinished).ToList();
+        private readonly bool sortEachTime;
+        protected List<Process> NotFinishedNotInterrupted => this.processes.Where(process => !process.IsFinished && (process.Interruption == null || !process.Interruption.IsInterrupted)).ToList();
+        protected List<Process> Interrupted => this.processes.Where(process => process.Interruption != null && process.Interruption.IsInterrupted).ToList();
+        protected Process lastProcess;
         protected int currentTime;
+        protected int consequtiveTime;
 
-        protected Scheduler(List<Process> processes)
+        protected Scheduler(List<Process> processes, bool sortEachTime = true)
         {
             this.processes = processes;
+            this.sortEachTime = sortEachTime;
             this.history = new History();
         }
 
@@ -46,14 +53,32 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected virtual void SortBefore()
         {
-            this.processes.Sort((p1, p2) => p1.ArrivalTime.CompareTo(p2.ArrivalTime));
+            this.processes.Sort((p1, p2) => p1.LastArrivalTime.CompareTo(p2.LastArrivalTime));
         }
 
         protected abstract Process GetNext();
 
         protected virtual int GetExecutionLength(Process nextProcess)
         {
-            return nextProcess.RemainingTime;
+            return nextProcess.RemainingTimeReal;
+        }
+
+        protected virtual bool ShouldInterrupt(Process nextProcess)
+        {
+            bool isEnabled = nextProcess.Interruption != null;
+            if (!isEnabled)
+            {
+                return false;
+            }
+
+            bool exceedsLimit = nextProcess.ConsecutiveTime >= nextProcess.Interruption.Limit;
+            bool passesFrequency = nextProcess.Interruption.PassesFrequency;
+            if (exceedsLimit && passesFrequency)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         protected virtual void BeforeProcessOnce(Process nextProcess)
@@ -68,6 +93,30 @@ namespace ProcessScheduling.Core.Schedulers
                 this.currentTime++;
                 nextProcess.Run(this.currentTime);
                 this.history.Add(currentTime, nextProcess);
+                
+                nextProcess.ConsecutiveTime++;
+                if (this.lastProcess != null && this.lastProcess != nextProcess)
+                {
+                    this.lastProcess.ConsecutiveTime = 0;
+                }
+
+                this.lastProcess = nextProcess;
+
+                // Releases once all interrupted - thus decreasing waiting remaining and else.
+                this.Interrupted.ForEach(process =>
+                {
+                    if (process.Interruption.ReleaseOnce())
+                    {
+                        process.AddAdditionalArrivalTime(this.currentTime);
+                    }
+                });
+
+                // Decides whether to interrupt current.
+                if (ShouldInterrupt(nextProcess))
+                {
+                    nextProcess.Interruption.Interrupt();
+                    break;
+                }
             }
         }
 
@@ -75,15 +124,17 @@ namespace ProcessScheduling.Core.Schedulers
         {
         }
 
-
         public List<Process> Process()
-        {
-            // Sorts the processes.
-            this.SortBefore();
-
+        {            
             // Iterates until all processes have completed.
             while (!processes.All(process => process.IsFinished))
             {
+                // Sorts the processes.
+                if (this.sortEachTime || this.currentTime == 0)
+                {
+                    this.SortBefore();
+                }
+
                 // Find the next process to run
                 var nextProcess = GetNext();
 
@@ -92,7 +143,7 @@ namespace ProcessScheduling.Core.Schedulers
                 {
                     this.currentTime++;
                     continue;
-                }
+                }                
 
                 this.BeforeProcessOnce(nextProcess);
                 this.ProcessOnce(nextProcess);
@@ -107,5 +158,6 @@ namespace ProcessScheduling.Core.Schedulers
             return this.history;
         }
     }
+
 
 }

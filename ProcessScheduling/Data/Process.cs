@@ -11,9 +11,11 @@
         public Process(int id, int arrivalTime, int burstTime)
         {
             this.Id = id;
-            this.ArrivalTime = arrivalTime;
+            this.arrivalTime = arrivalTime;
             this.BurstTime = burstTime;
-            this.RemainingTime = burstTime;
+            this.remainingTimeFull = burstTime;
+
+            this.additionalArrivalTimes = new List<int>();
         }
 
         private Process()
@@ -27,7 +29,7 @@
         /// <summary>
         /// Time of arrival.
         /// </summary>
-        public int ArrivalTime { get; }
+        private readonly int arrivalTime;
         /// <summary>
         /// How much time it takes to complete.
         /// </summary>
@@ -37,9 +39,30 @@
         /// </summary>
         public int StartTime { get; set; }
         /// <summary>
+        /// Additional start times in case of interruptions.
+        /// </summary>
+        private readonly List<int> additionalArrivalTimes;
+        /// <summary>
         /// How much of time remains for process to be fully processed.
         /// </summary>
-        public int RemainingTime { get; private set; }
+        private int remainingTimeFull;
+        /// <summary>
+        /// How much of time remains for process to be partially processed - for example interruption.
+        /// </summary>
+        public int RemainingTimeReal
+        {
+            get
+            {
+                if (this.Interruption != null && this.Interruption.PassesFrequency)
+                {
+                    return this.Interruption.Limit - this.ConsecutiveTime;
+                }
+                else
+                {
+                    return this.remainingTimeFull;
+                }
+            }
+        }
         /// <summary>
         /// When was the process finished.
         /// </summary>
@@ -48,6 +71,30 @@
         /// Whether process is finished.
         /// </summary>
         public bool IsFinished { get; private set; }
+        /// <summary>
+        /// Interruption of process.
+        /// </summary>
+        public Interruption Interruption { get; set; }
+        /// <summary>
+        /// How many times was this process run consecutive.
+        /// </summary>
+        public int ConsecutiveTime { get; set; }
+
+        /// <summary>
+        /// Adds additional start time.
+        /// </summary>
+        /// <param name="startTime"></param>
+        public void AddAdditionalArrivalTime(int startTime)
+        {
+            this.additionalArrivalTimes.Add(startTime);
+        }
+
+        /// <summary>
+        /// Gets last arrival time.
+        /// </summary>
+        /// <returns></returns>
+        public int LastArrivalTime => !this.additionalArrivalTimes.Any() ? this.arrivalTime : this.additionalArrivalTimes.Last();
+        
 
         public void Run(int currentTime)
         {
@@ -56,14 +103,14 @@
                 throw new Exception("Process is already finished.");
             }
 
-            if (this.RemainingTime == this.BurstTime)
+            if (this.remainingTimeFull == this.BurstTime)
             {
                 StartTime = currentTime;
             }
 
-            this.RemainingTime--;
+            this.remainingTimeFull--;
 
-            if (this.RemainingTime == 0)
+            if (this.remainingTimeFull == 0)
             {
                 this.Finish(currentTime);
             }
@@ -77,7 +124,7 @@
 
         public override string ToString()
         {
-            return $"Id: {Id} Arrival Time: {ArrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
+            return $"Id: {Id} Arrival Time: {arrivalTime} Burst Time: {BurstTime} Start Time: {StartTime} Finish Time: {FinishTime}.";
         }
     }
 }

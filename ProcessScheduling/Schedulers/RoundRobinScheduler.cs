@@ -11,19 +11,19 @@ namespace ProcessScheduling.Core.Schedulers
     {
         private readonly int timeSlice;
 
-        public RoundRobinScheduler(List<Process> processes, int timeSlice) : base(processes)
+        public RoundRobinScheduler(List<Process> processes, int timeSlice) : base(processes, false)
         {
             this.timeSlice = timeSlice;
         }
 
         protected override Process GetNext()
         {
-            return this.NotFinished.Find(process => process.ArrivalTime <= this.currentTime);
+            return this.NotFinishedNotInterrupted.Find(process => process.LastArrivalTime <= this.currentTime);
         }
 
         protected override int GetExecutionLength(Process nextProcess)
         {
-            return Math.Min(this.timeSlice, nextProcess.RemainingTime);
+            return Math.Min(this.timeSlice, nextProcess.RemainingTimeReal);
         }
 
         protected override void BeforeProcessOnce(Process nextProcess)
@@ -33,7 +33,7 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected override void AfterProcessOnce(Process nextProcess)
         {
-            int insertAfter = this.processes.OrderBy(process => process.ArrivalTime).ToList().FindLastIndex(process => process.ArrivalTime <= this.currentTime);
+            int insertAfter = this.processes.OrderBy(process => process.LastArrivalTime).ToList().FindLastIndex(process => process.LastArrivalTime <= this.currentTime);
             if (insertAfter >= 0)
             {
                 this.processes.Insert(insertAfter + 1, nextProcess);

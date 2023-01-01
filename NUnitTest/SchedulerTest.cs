@@ -2,15 +2,9 @@ using ProcessScheduling.Core.Data;
 using ProcessScheduling.Core.Schedulers;
 
 namespace NUnitTest
-{
+{   
     public class Tests
     {
-        private void PrintScheduler(IScheduler scheduler)
-        {
-            
-            Console.WriteLine();
-        }
-
         [Test]
         public void FirstComeFirstServe()
         {
@@ -37,6 +31,46 @@ namespace NUnitTest
             };
             var scheduler = new FirstComeFirstServeScheduler(processes);
             
+            // Act
+            scheduler.Process();
+
+            // Assert
+            Console.WriteLine(scheduler);
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
+        }
+
+        [Test]
+        public void FirstComeFirstServeInterruption()
+        {
+            // Arrange
+            var processes = new List<Process>()
+            {
+                new Process(1, 8, 2),
+                new Process(2, 5, 1),
+                new Process(3, 2, 7) { Interruption = new Interruption(3, 2) },
+                new Process(4, 4, 3),
+                new Process(5, 2, 8) { Interruption = new Interruption(4, 3) },
+                new Process(6, 4, 2),
+                new Process(7, 3, 5),
+            };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 26 },
+                { 2, 20 },
+                { 3, 24 },
+                { 4, 17 },
+                { 5, 30 },
+                { 6, 19 },
+                { 7, 14 },
+            };
+            var scheduler = new FirstComeFirstServeScheduler(processes);
+
             // Act
             scheduler.Process();
 
@@ -114,6 +148,46 @@ namespace NUnitTest
                 { 5, 30 },
                 { 6, 6 },
                 { 7, 16 },
+            };
+            var scheduler = new ShortestRemainingTimeFirstScheduler(processes);
+
+            // Act
+            scheduler.Process();
+
+            // Assert
+            Console.WriteLine(scheduler);
+            Assert.Multiple(() =>
+            {
+                foreach (var process in processes)
+                {
+                    Assert.IsTrue(process.FinishTime == expected[process.Id]);
+                }
+            });
+        }
+
+        [Test]
+        public void ShortestRemainingTimeFirstInterruption()
+        {
+            // Arrange
+            var processes = new List<Process>()
+            {
+                new Process(1, 8, 2),
+                new Process(2, 5, 1),
+                new Process(3, 2, 7) { Interruption = new Interruption(3, 2) },
+                new Process(4, 4, 3),
+                new Process(5, 2, 8) { Interruption = new Interruption(4, 3) },
+                new Process(6, 4, 2),
+                new Process(7, 3, 5),
+            };
+            var expected = new Dictionary<int, int>
+            {
+                { 1, 10 },
+                { 2, 6 },
+                { 3, 21 },
+                { 4, 13 },
+                { 5, 25 },
+                { 6, 8 },
+                { 7, 30 },
             };
             var scheduler = new ShortestRemainingTimeFirstScheduler(processes);
 
