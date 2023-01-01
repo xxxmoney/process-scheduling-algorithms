@@ -18,12 +18,12 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected override Process GetNext()
         {
-            return this.NotFinishedNotInterrupted.Find(process => process.GetLastArrivalTime() <= this.currentTime);
+            return this.NotFinishedNotInterrupted.Find(process => process.LastArrivalTime <= this.currentTime);
         }
 
         protected override int GetExecutionLength(Process nextProcess)
         {
-            return Math.Min(this.timeSlice, nextProcess.RemainingTime);
+            return Math.Min(this.timeSlice, nextProcess.RemainingTimeReal);
         }
 
         protected override void BeforeProcessOnce(Process nextProcess)
@@ -33,7 +33,7 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected override void AfterProcessOnce(Process nextProcess)
         {
-            int insertAfter = this.processes.OrderBy(process => process.GetLastArrivalTime()).ToList().FindLastIndex(process => process.GetLastArrivalTime() <= this.currentTime);
+            int insertAfter = this.processes.OrderBy(process => process.LastArrivalTime).ToList().FindLastIndex(process => process.LastArrivalTime <= this.currentTime);
             if (insertAfter >= 0)
             {
                 this.processes.Insert(insertAfter + 1, nextProcess);

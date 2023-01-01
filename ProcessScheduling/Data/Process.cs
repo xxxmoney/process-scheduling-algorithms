@@ -1,6 +1,4 @@
-﻿using ProcessScheduling.Core.Enums;
-
-namespace ProcessScheduling.Core.Data
+﻿namespace ProcessScheduling.Core.Data
 {
     public class Process
     {
@@ -15,7 +13,7 @@ namespace ProcessScheduling.Core.Data
             this.Id = id;
             this.arrivalTime = arrivalTime;
             this.BurstTime = burstTime;
-            this.RemainingTime = burstTime;
+            this.remainingTimeFull = burstTime;
 
             this.additionalArrivalTimes = new List<int>();
         }
@@ -47,7 +45,24 @@ namespace ProcessScheduling.Core.Data
         /// <summary>
         /// How much of time remains for process to be fully processed.
         /// </summary>
-        public int RemainingTime { get; private set; }
+        private int remainingTimeFull;
+        /// <summary>
+        /// How much of time remains for process to be partially processed - for example interruption.
+        /// </summary>
+        public int RemainingTimeReal
+        {
+            get
+            {
+                if (this.Interruption != null && this.Interruption.PassesFrequency)
+                {
+                    return this.Interruption.Limit - this.ConsecutiveTime;
+                }
+                else
+                {
+                    return this.remainingTimeFull;
+                }
+            }
+        }
         /// <summary>
         /// When was the process finished.
         /// </summary>
@@ -60,6 +75,10 @@ namespace ProcessScheduling.Core.Data
         /// Interruption of process.
         /// </summary>
         public Interruption Interruption { get; set; }
+        /// <summary>
+        /// How many times was this process run consecutive.
+        /// </summary>
+        public int ConsecutiveTime { get; set; }
 
         /// <summary>
         /// Adds additional start time.
@@ -74,10 +93,8 @@ namespace ProcessScheduling.Core.Data
         /// Gets last arrival time.
         /// </summary>
         /// <returns></returns>
-        public int GetLastArrivalTime()
-        {
-            return !this.additionalArrivalTimes.Any() ? this.arrivalTime : this.additionalArrivalTimes.Last();
-        }
+        public int LastArrivalTime => !this.additionalArrivalTimes.Any() ? this.arrivalTime : this.additionalArrivalTimes.Last();
+        
 
         public void Run(int currentTime)
         {
@@ -86,14 +103,14 @@ namespace ProcessScheduling.Core.Data
                 throw new Exception("Process is already finished.");
             }
 
-            if (this.RemainingTime == this.BurstTime)
+            if (this.remainingTimeFull == this.BurstTime)
             {
                 StartTime = currentTime;
             }
 
-            this.RemainingTime--;
+            this.remainingTimeFull--;
 
-            if (this.RemainingTime == 0)
+            if (this.remainingTimeFull == 0)
             {
                 this.Finish(currentTime);
             }

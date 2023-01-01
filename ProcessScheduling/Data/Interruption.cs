@@ -66,5 +66,10 @@ namespace ProcessScheduling.Core.Data
 
             return false;
         }
+
+        /// <summary>
+        /// Determines whether frequency is qualified - it can be allowed to interrupt.
+        /// </summary>
+        public bool PassesFrequency => this.Frequency == InterruptionFrequency.EachTime || this.Counter == 0;
     }
 }

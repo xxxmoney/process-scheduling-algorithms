@@ -53,17 +53,17 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected virtual void SortBefore()
         {
-            this.processes.Sort((p1, p2) => p1.GetLastArrivalTime().CompareTo(p2.GetLastArrivalTime()));
+            this.processes.Sort((p1, p2) => p1.LastArrivalTime.CompareTo(p2.LastArrivalTime));
         }
 
         protected abstract Process GetNext();
 
         protected virtual int GetExecutionLength(Process nextProcess)
         {
-            return nextProcess.RemainingTime;
+            return nextProcess.RemainingTimeReal;
         }
 
-        protected virtual bool ShouldInterrupt(Process nextProcess, int consecutive)
+        protected virtual bool ShouldInterrupt(Process nextProcess)
         {
             bool isEnabled = nextProcess.Interruption != null;
             if (!isEnabled)
@@ -71,8 +71,8 @@ namespace ProcessScheduling.Core.Schedulers
                 return false;
             }
 
-            bool exceedsLimit = consecutive >= nextProcess.Interruption.Limit;
-            bool passesFrequency = nextProcess.Interruption.Frequency == InterruptionFrequency.EachTime || nextProcess.Interruption.Counter == 0;
+            bool exceedsLimit = nextProcess.ConsecutiveTime >= nextProcess.Interruption.Limit;
+            bool passesFrequency = nextProcess.Interruption.PassesFrequency;
             if (exceedsLimit && passesFrequency)
             {
                 return true;
@@ -93,14 +93,11 @@ namespace ProcessScheduling.Core.Schedulers
                 this.currentTime++;
                 nextProcess.Run(this.currentTime);
                 this.history.Add(currentTime, nextProcess);
-
-                if (this.lastProcess == nextProcess)
+                
+                nextProcess.ConsecutiveTime++;
+                if (this.lastProcess != null && this.lastProcess != nextProcess)
                 {
-                    this.consequtiveTime++;
-                }
-                else
-                {
-                    this.consequtiveTime = 0;
+                    this.lastProcess.ConsecutiveTime = 0;
                 }
 
                 this.lastProcess = nextProcess;
@@ -115,7 +112,7 @@ namespace ProcessScheduling.Core.Schedulers
                 });
 
                 // Decides whether to interrupt current.
-                if (ShouldInterrupt(nextProcess, this.consequtiveTime + 1))
+                if (ShouldInterrupt(nextProcess))
                 {
                     nextProcess.Interruption.Interrupt();
                     break;

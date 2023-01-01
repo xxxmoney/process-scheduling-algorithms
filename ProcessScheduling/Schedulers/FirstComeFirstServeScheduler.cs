@@ -15,7 +15,7 @@ namespace ProcessScheduling.Core.Schedulers
 
         protected override Process GetNext()
         {
-            return this.NotFinishedNotInterrupted.Find(process => process.GetLastArrivalTime() <= this.currentTime);
+            return this.NotFinishedNotInterrupted.Find(process => process.LastArrivalTime <= this.currentTime);
         }
     }
 }

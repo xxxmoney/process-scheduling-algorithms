@@ -183,11 +183,11 @@ namespace NUnitTest
             {
                 { 1, 10 },
                 { 2, 6 },
-                { 3, 17 },
+                { 3, 21 },
                 { 4, 13 },
-                { 5, 30 },
+                { 5, 25 },
                 { 6, 8 },
-                { 7, 26 },
+                { 7, 30 },
             };
             var scheduler = new ShortestRemainingTimeFirstScheduler(processes);
 

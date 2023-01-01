@@ -19,7 +19,7 @@ namespace ProcessScheduling.Core.Schedulers
             int shortestBurstTime = int.MaxValue;
             foreach (var p in this.NotFinishedNotInterrupted)
             {
-                if (p.GetLastArrivalTime() <= currentTime && p.BurstTime < shortestBurstTime)
+                if (p.LastArrivalTime <= currentTime && p.BurstTime < shortestBurstTime)
                 {
                     nextProcess = p;
                     shortestBurstTime = p.BurstTime;
