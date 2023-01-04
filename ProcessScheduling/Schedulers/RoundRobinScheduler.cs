@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ProcessScheduling.Core.Schedulers
 {
-    internal class RoundRobinScheduler : Scheduler
+    public class RoundRobinScheduler : Scheduler
     {
         private readonly int timeSlice;
 

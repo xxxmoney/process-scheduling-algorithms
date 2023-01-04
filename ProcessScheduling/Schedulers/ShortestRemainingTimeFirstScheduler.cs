@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ProcessScheduling.Core.Schedulers
 {
-    internal class ShortestRemainingTimeFirstScheduler : Scheduler
+    public class ShortestRemainingTimeFirstScheduler : Scheduler
     {
         public ShortestRemainingTimeFirstScheduler(List<Process> processes) : base(processes)
         {

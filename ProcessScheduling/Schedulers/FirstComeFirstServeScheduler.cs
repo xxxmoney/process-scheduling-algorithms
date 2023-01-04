@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ProcessScheduling.Core.Schedulers
 {
-    internal class FirstComeFirstServeScheduler : Scheduler
+    public class FirstComeFirstServeScheduler : Scheduler
     {
         public FirstComeFirstServeScheduler(List<Process> processes) : base(processes)
         {
